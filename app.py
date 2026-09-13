@@ -49,6 +49,8 @@ def seed_default_admin():
         print('[seed] Default admin created: admin / admin123')
 
 
+# Vercel Python Runtime needs the app exposed at module level
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=3031, debug=True)
