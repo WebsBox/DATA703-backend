@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_cors import CORS
 from config import Config
@@ -40,13 +41,21 @@ def create_app(config_class=Config):
 
 
 def seed_default_admin():
+    """从环境变量读取管理员凭据，首次启动时自动创建"""
     from models import User
-    if not User.query.filter_by(username='admin').first():
-        admin = User(username='admin', email='admin@example.com', role='admin')
-        admin.set_password('admin123')
+    admin_username = os.environ.get('ADMIN_USERNAME', 'admin')
+    admin_email = os.environ.get('ADMIN_EMAIL', 'admin@example.com')
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+
+    if not User.query.filter_by(username=admin_username).first():
+        if not admin_password:
+            print('[seed] ADMIN_PASSWORD not set, skipping default admin creation')
+            return
+        admin = User(username=admin_username, email=admin_email, role='admin')
+        admin.set_password(admin_password)
         db.session.add(admin)
         db.session.commit()
-        print('[seed] Default admin created: admin / admin123')
+        print(f'[seed] Default admin created: {admin_username}')
 
 
 # Vercel Python Runtime needs the app exposed at module level
